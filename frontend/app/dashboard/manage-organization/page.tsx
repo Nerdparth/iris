@@ -1,5 +1,6 @@
 import getOrganizationData from "@/api/organization/getOrganizationData";
 import EditForm from "./EditForm";
+import OrganizationMembers from "./OrganizationMembers";
 
 export default async function ManageOrganizationPage() {
   const response = await getOrganizationData();
@@ -21,6 +22,8 @@ export default async function ManageOrganizationPage() {
         orgName={organization.organisation_name}
         orgIndustry={organization.industry}
       />
+
+      <OrganizationMembers orgUuid={organization.uuid} />
     </div>
   );
 }
