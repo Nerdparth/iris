@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@/components/auth";
+import JoinButton from "@/component/joinButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,7 @@ export default function RootLayout({
               </Link>
             </SignedOut>
             <SignedIn>
+              <JoinButton />
               <Link href="/dashboard">Dashboard</Link>
               <form action="/auth/signout" method="POST">
                 <button type="submit" className="cursor-pointer">
