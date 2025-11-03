@@ -13,8 +13,6 @@ export default async function getOrganizationData() {
     }
   );
 
-  console.log("Response status:", response.status);
-
   if (response.status === 302) {
     redirect("/no-organization");
   }
