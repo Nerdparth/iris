@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
+import Link from "next/link";
+import { SignedIn, SignedOut } from "@/components/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +30,37 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <header className="flex justify-between items-center p-4 gap-4 h-16">
+          <Link href="/" className="font-black">
+            Iris
+          </Link>
+          <div className="flex gap-4 items-center">
+            <SignedOut>
+              <Link
+                href="/signup"
+                className="bg-gray-200 text-gray-900 flex items-center rounded-lg font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer hover:bg-gray-300"
+              >
+                Sign Up
+              </Link>
+              <Link
+                href="/signin"
+                className="bg-blue-600 text-white flex items-center rounded-lg font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer"
+              >
+                Sign In
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/dashboard">Dashboard</Link>
+              <form action="/auth/signout" method="POST">
+                <button type="submit" className="cursor-pointer">
+                  Logout
+                </button>
+              </form>
+            </SignedIn>
+          </div>
+        </header>
         {children}
+        <Toaster richColors />
       </body>
     </html>
   );
