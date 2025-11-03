@@ -13,3 +13,8 @@ class CreateBotSchema(Schema):
 class CreateSupabaseChatSchema(Schema):
     ip_address : str
     bot_id : str
+
+class SendChatMessageSchema(Schema):
+    chat_id: int
+    message: str
+    sender: str
