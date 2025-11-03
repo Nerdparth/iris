@@ -22,6 +22,10 @@ export default function Messages({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [loading, chats.length]);
+
+  useEffect(() => {
+    console.log("Chat messages:", chats);
+  }, [chats]);
   return (
     <div className="absolute top-0 left-0 h-full w-full z-10 bg-white/50 backdrop-blur-md flex items-center justify-center">
       <div ref={scrollRef} className="bg-white p-4 relative rounded-lg max-w-2xl w-full h-4/5 overflow-y-scroll m-8 border border-gray-200">
@@ -40,14 +44,14 @@ export default function Messages({
           )}
           {!loading && chats.length > 0 &&
             chats.map((msg) => {
-              const isUser = msg.sender === '"user"';
+              const isBot = msg.sender === 'bot';
               return (
                 <p
                   key={msg.id}
                   className={
                     "px-3 py-2 max-w-[75%] w-fit whitespace-pre-wrap break-words rounded-2xl shadow-sm" +
-                    (isUser ? " ml-auto" : " mr-auto") +
-                    (isUser
+                    (isBot ? " ml-auto" : " mr-auto") +
+                    (isBot
                       ? " bg-blue-600 text-white rounded-br-sm"
                       : " bg-gray-100 text-gray-900 rounded-bl-sm")
                   }
@@ -66,7 +70,7 @@ export default function Messages({
               if (!trimmed) return;
               (async () => {
                 try {
-                  await sendMessage({ chatId, message: trimmed, sender: '"user"' });
+                  await sendMessage({ chatId, message: trimmed });
                   setInput("");
                   if (scrollRef.current) {
                     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
