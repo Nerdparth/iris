@@ -14,10 +14,10 @@ export default function ChatList({
   const chats = useChatSubscription(botUuid, initialChats);
 
   return (
-    <ul>
+    <>
       {chats.map((chat) => (
         <ChatCard key={chat.id} chat={chat} />
       ))}
-    </ul>
+    </>
   );
 }
