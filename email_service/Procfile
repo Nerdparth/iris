@@ -1,0 +1,2 @@
+web: gunicorn email_service.wsgi
+worker: celery -A email_service worker --loglevel=info
