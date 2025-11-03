@@ -13,9 +13,11 @@ export default async function DashboardLayout({
   return (
     <>
       <SignedIn>
-        <div className="flex h-[calc(100vh-4rem)] overflow-y-scroll gap-4 font-sans border-t border-gray-200 dark:border-gray-800">
+        <div className="flex h-[calc(100vh-4rem)] gap-4 font-sans border-t border-gray-200 dark:border-gray-800">
           <Sidebar bots={response.bots} />
-          <main className="flex-1 p-4">{children}</main>
+          <div className="flex-1 p-4 overflow-y-scroll">
+            <main>{children}</main>
+          </div>
         </div>
       </SignedIn>
       <SignedOut>
