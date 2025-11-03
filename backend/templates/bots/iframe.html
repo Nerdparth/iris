@@ -93,13 +93,7 @@
         .chat-header {
             height: 64px;
 
-            border-bottom: 1px solid {
-                    {
-                    bot.color_1
-                }
-            }
-
-            ;
+            border-bottom: 1px solid {{bot.color_1}};
             display: flex;
             align-items: center;
             padding: 0 16px;
@@ -273,7 +267,7 @@
                     class="flex-1 cs-input rounded-lg px-4 py-3 focus:outline-none focus:ring-2 " required>
                <button 
                     type="button" 
-                    onclick="sendMessage(document.getElementById('user-input').value, 'user')" 
+                    onclick="sendMessage(document.getElementById('user-input').value)" 
                     class="cs-btn-css hover:bg-zinc-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
                     Send
                 </button>
@@ -281,10 +275,16 @@
             </div>
         </form>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const chatWindow = document.getElementById("chat-window");
-        var global_chat_id = null;
+        const chatWindow = document.getElementById("chat-window")
+        var chatId = null;
+         const SUPABASE_URL = "https://vpponhdxiubjowonyiuu.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwcG9uaGR4aXViam93b255aXV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMDczMzAsImV4cCI6MjA3NzU4MzMzMH0.jfc2dW-L7GyHDtV7Yc9nrTYxK9lE3sQRdpSld7IwLZQ";
+ const { createClient } = supabase; // Destructure createClient from the global 'supabase' object
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
         document.addEventListener("DOMContentLoaded", async () => {
+            scrollToBottom()
             const bot_id = "{{bot.uuid}}"
             try {
                 var ip_address = await fetch("https://api64.ipify.org?format=json")
@@ -300,46 +300,98 @@
                     })
                 const chat_id_getter = await res.json()
                 const chat_id = chat_id_getter["chat"]["id"]
-                global_chat_id = chat_id
-                var chat_messages = await fetch(`http://127.0.0.1:8000/bot/get-messages/${chat_id}`)
-                var chat_messages = await chat_messages.json()
-                var chat_messages = chat_messages["messages"]
-                chat_messages.forEach(
-                    msg => {
-                        const div = document.createElement("div");
-                        if (msg.sender === "bot") {
-                            div.className = "bot-message";
-                        } else if (msg.sender === "user") {
-                            div.className = "message-container-user";
-                        }
-                        div.textContent = msg.chat_messages;
-                        chatWindow.appendChild(div);
-                    }
-                )
+                chatId=parseInt(chat_id)
+                 const channel = db
+    .channel('public:messages') // any name you like
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',            // 'INSERT' | 'UPDATE' | 'DELETE' | '*'
+        schema: 'public',
+        table: 'ChatMessages' ,     // your table name
+        filter: `chat_id=eq.${Number(chatId)}`
+      },
+      (payload) => {
+        
+        const message_div = document.createElement("div");
+        const sender = payload.new.sender.replace(/"/g, '').trim();
+
+    if (sender === "bot") {
+        message_div.className = "bot-message";
+    } else if (sender === "user") {
+        message_div.className = "message-container-user";
+    }
+
+    // Set message content
+    message_div.textContent = payload.new.chat_messages;
+
+    // Append to chat window
+    chatWindow.appendChild(message_div);
+    scrollToBottom()
+      }
+    )
+    .subscribe()
+                const messagesData = await fetch(`http://127.0.0.1:8000/bot/get-messages/${chat_id}`)
+                const messages = await messagesData.json()
+                messages.messages.forEach(msg => {
+    // Clean sender string if it has quotes
+    const sender = msg.sender.replace(/"/g, '');
+
+    // Create a new div
+    const div = document.createElement("div");
+
+    // Assign class based on sender
+    if (sender === "bot") {
+        div.className = "bot-message";
+    } else if (sender === "user") {
+        div.className = "message-container-user";
+    }
+
+    // Set message content
+    div.textContent = msg.chat_messages;
+
+    // Append to chat window
+    chatWindow.appendChild(div);
+});
+  
             }
             catch (err) {
                 console.log(err)
             }
         })
+        const botId = "{{bot.uuid}}"
 
-        async function sendMessage(message, sender) {
-            await fetch(`http://127.0.0.1:8000/bot/send-message`, {
-                body: JSON.stringify({
-                    "chat_id" : global_chat_id,
-                    "message" : message,
-                    "sender" : sender
-                })
-            })
-            const div = document.createElement("div");
-            if (sender === "bot") {
-                            div.className = "bot-message";
-                        } else if (sender === "user") {
-                            div.className = "message-container-user";
-                        }
-            div.textContent = message;
-            chatWindow.appendChild(div);
+        async function sendMessage(text){
+            
+          if (text.length !== 0 ) { await db
+    .from("ChatMessages") // your table name
+    .insert([
+      {
+        chat_id: chatId,
+        sender: "user",
+        chat_messages: text
+      }
+    ]);}
+      // parth will call the ml api here
+
+    await fetch(`https://kathi-merchantlike-lashawn.ngrok-free.dev/api/predict-sentiment?text=${text}&chat_id=${chatId}`, {
+        method:'POST'
+        
+    })
+
+    let { data: Chats, error } = await db
+  .from('Chats')
+  .select('is_intervened')
+  .eq('id', chatId)
+
+    if (!Chats[0].is_intervened){await fetch(`https://bold-helpful-gull.ngrok-free.app/bot/generate-response/${botId}/${chatId}/${text}`, {
+        method : 'POST'
+    })
+    console.log("chat is intevened by human")
+}
+    
         }
-
+        
         function scrollToBottom() {
             let chatWindow = document.getElementById("chat-window");
             chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -369,7 +421,7 @@
             }
         }
 
-
+        
 
         // Event listeners for chat button and close button
         document.getElementById("chat-button").addEventListener("click", toggleChat);
@@ -380,6 +432,15 @@
 
         });
     </script>
+
+    <script>
+
+
+  // Subscribe to INSERT, UPDATE, DELETE events
+ 
+</script>
+
+
 </body>
 
 </html>

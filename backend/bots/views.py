@@ -5,7 +5,7 @@ from .models import Bot
 from organisation_api.models import Organisation
 from django.db import transaction
 from supabase_client import supabase
-from .utils import generate_embedding_and_store, chunkify_data, extract_text_from_file
+from .utils import generate_embedding_and_store, chunkify_data, extract_text_from_file, convert_to_embedding_and_search
 from django.views.decorators.clickjacking import xframe_options_exempt
 from ninja import NinjaAPI, File
 from ninja.files import UploadedFile
@@ -101,8 +101,29 @@ def send_message(request, data: SendChatMessageSchema):
     except Exception as e:
         return JsonResponse({"error" : str(e)}, status=400)
     
+
+@bots_api.post("/generate-response/{bot_uuid}/{chat_id}/{prompt}")
+def generate_response(request, bot_uuid : str, prompt: str, chat_id : str):
+    result = convert_to_embedding_and_search(prompt, bot_uuid)
+    supabase.table("ChatMessages").insert({
+        "chat_messages" : result,
+        "sender" : "bot",
+        "chat_id" : chat_id
+    }).execute()
+    return JsonResponse({"message" : str(result)})
     
-    
+@bots_api.delete("/delete-bot/{bot_uuid}")
+def delete_bot(request, bot_uuid: str):
+    try:
+        bot = Bot.objects.filter(uuid=bot_uuid).first()
+        if not bot:
+            return JsonResponse({"error": "bot not found"}, status=404)
+
+        bot.delete()
+        return JsonResponse({"message": "bot deleted successfully"}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
 @xframe_options_exempt
 def iframe(request, organisation_id, bot_id):
     supabase_url = os.getenv("SUPABASE_URL")
