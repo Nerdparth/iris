@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function BasicInfo({
   setData,
+  data,
   setFile,
   handleSubmit,
 }: {
@@ -14,13 +15,19 @@ export default function BasicInfo({
     color_2: string;
     text_color: string;
   }) => void;
+  data: {
+    bot_name: string;
+    bot_description: string;
+    color_1: string;
+    color_2: string;
+    text_color: string;
+  };
   setFile: (file: File) => void;
   handleSubmit: () => void;
 }) {
   const [color, setColor] = useState("blue");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-
 
   const colors = [
     {
@@ -46,26 +53,39 @@ export default function BasicInfo({
           // const description = formData.get("bot-description") as string;
 
           if (name && description && color) {
-          const selectedColor = colors.find((c) => c.name === color);
-          if (selectedColor) {
-            setData({
-              bot_name: name,
-              bot_description: description,
-              color_1: selectedColor.color_1,
-              color_2: selectedColor.color_2,
-              text_color: selectedColor.text,
-            });
-          }
-        }
+            const selectedColor = colors.find((c) => c.name === color);
+            if (selectedColor) {
+              setData({
+                bot_name: name,
+                bot_description: description,
+                color_1: selectedColor.color_1,
+                color_2: selectedColor.color_2,
+                text_color: selectedColor.text,
+              });
 
-          const fileInput = e.currentTarget.querySelector(
-            "#file"
-          ) as HTMLInputElement;
-          if (fileInput && fileInput.files && fileInput.files.length > 0) {
-            setFile(fileInput.files[0]);
-          }
+              setTimeout(() => {
+                console.log(
+                  {
+                    bot_name: name,
+                    bot_description: description,
+                    color_1: selectedColor.color_1,
+                    color_2: selectedColor.color_2,
+                    text_color: selectedColor.text,
+                  },
+                  data
+                );
+              }, 1);
 
-          handleSubmit();
+              const fileInput = e.currentTarget.querySelector(
+                "#file"
+              ) as HTMLInputElement;
+              if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                setFile(fileInput.files[0]);
+              }
+
+              handleSubmit();
+            }
+          }
         }}
       >
         <div className="flex flex-col">
