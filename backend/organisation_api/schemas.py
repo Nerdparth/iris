@@ -1,6 +1,7 @@
 from ninja import Schema
 
 class CreateOrganisationSchema(Schema):
+    user_id : str
     organisation_name: str
     industry: str
 
