@@ -36,7 +36,7 @@ def join_organisation(request, data: JoinOrganisationSchema):
     
 @organisation_api.post("/create-organisation")
 def create_organisation(request, data: CreateOrganisationSchema):
-    # try:
+    try:
         try:
             if not User.objects.filter(username= data.user_id).exists():
                 return JsonResponse({"error" : "user is not valid"})
@@ -51,8 +51,8 @@ def create_organisation(request, data: CreateOrganisationSchema):
             return JsonResponse({"message": "organisation created successfully", "organisation_code" : organisation_code, "uuid" : organisation.uuid})
         except IntegrityError:
             create_organisation(request=request, data=data)
-    # except Exception as e:
-    #     return JsonResponse({"error": str(e)}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
     
 
 @organisation_api.get("/dashboard-data")

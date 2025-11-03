@@ -70,4 +70,13 @@ def chunkify_data(text : str, chunk_size=700, overlap=100):
         chunks.append(" ".join(current_chunk))
 
     return chunks
-    
+
+
+def convert_to_embedding_and_search(text : str, bot_uuid:str):
+    embedding = post("http://172.29.153.203:11434/api/embeddings", json={ "model": "mxbai-embed-large" , "prompt": text}).json()["embedding"]
+    collection = client.get_or_create_collection(bot_uuid)
+    return
+
+
+def get_response():
+    return 

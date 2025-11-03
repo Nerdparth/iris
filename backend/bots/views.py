@@ -18,24 +18,42 @@ bots_api = NinjaAPI(urls_namespace="bots_api")
 load_dotenv()
 
 
+from ninja import File, Form
+from ninja.files import UploadedFile
+from django.http import JsonResponse
+from django.db import transaction
+import os
+
 @bots_api.post("/create-bot")
-def create_bot(request, data : CreateBotSchema, file: File[UploadedFile]):
-    try: 
+def create_bot(request, data: CreateBotSchema = Form(...), file: UploadedFile = File(...)):
+    try:
         extension = os.path.splitext(file.name)[1]
-        if not Organisation.objects.filter(uuid = data.organisation_uuid).exists():
-            return JsonResponse({"error" : "Your Organisation doesn't exist"}, status=400)
-        else:
-            organisation = Organisation.objects.get(uuid = data.organisation_uuid)
+
+        if not Organisation.objects.filter(uuid=data.organisation_uuid).exists():
+            return JsonResponse({"error": "Your Organisation doesn't exist"}, status=400)
+
+        organisation = Organisation.objects.get(uuid=data.organisation_uuid)
+
         with transaction.atomic():
-            bot = Bot.objects.create(organisation=organisation, bot_name = data.bot_name, bot_description = data.bot_description, color_1 = data.color_1, color_2 = data.color_2, text_color = data.text_color)
+            bot = Bot.objects.create(
+                organisation=organisation,
+                bot_name=data.bot_name,
+                bot_description=data.bot_description,
+                color_1=data.color_1,
+                color_2=data.color_2,
+                text_color=data.text_color,
+            )
+
             text = extract_text_from_file(file=file, extension=extension)
-            if text is not None:
-                chunks = chunkify_data(text=text)
-                for chunk in chunks:
-                    generate_embedding_and_store(text=chunk, bot_uuid=bot.uuid)
-                return JsonResponse({"message" : "generated bot successfully"}, status=200)
-            else:
-                return JsonResponse({"error" : "unsupported file types for bot"}, status=400)
+            if text is None:
+                return JsonResponse({"error": "unsupported file types for bot"}, status=400)
+
+            chunks = chunkify_data(text=text)
+            for chunk in chunks:
+                generate_embedding_and_store(text=chunk, bot_uuid=bot.uuid)
+
+            return JsonResponse({"message": "generated bot successfully"}, status=200)
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
     
@@ -82,7 +100,7 @@ def send_message(request, data: SendChatMessageSchema):
         return JsonResponse({"message" : "sent successfully"}, status=200)
     except Exception as e:
         return JsonResponse({"error" : str(e)}, status=400)
-
+    
     
     
 @xframe_options_exempt
