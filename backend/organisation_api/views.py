@@ -85,7 +85,7 @@ def update_organisation(request, data: UpdateOrganisationSchema):
         else:
             organisation = Organisation.objects.get(uuid = data.uuid)
         if not OrganisationMember.objects.filter(member = user, organisation=organisation, is_admin=True).exists():
-            return JsonResponse({'error':'you are not authorised to make these changes'} , status=400)
+            return JsonResponse({'error':'you are not authorised to make these changes'} , status=302)
         else:
             if data.new_organisation_name:
                 organisation.organisation_name = data.new_organisation_name
@@ -115,3 +115,17 @@ def delete_organisation(request, uuid: str, user_id: str):
             return JsonResponse({'message':'organisation deleted successfully'},status=200)
     except Exception as e:
         return JsonResponse({'error':str(e)},status=400)
+    
+
+@organisation_api.get("/organisation-members")
+def organistaion_members(request,uuid:str):
+    try:
+        if not Organisation.objects.filter(uuid=uuid).exists():
+            return JsonResponse({"error": "Invalid organisation UUID"}, status=400)
+        organisation = Organisation.objects.get(uuid=uuid)
+        members = list(OrganisationMember.objects.filter(organisation=organisation).select_related("members").values("member","is_admin"))
+        return JsonResponse(members, safe=False, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
