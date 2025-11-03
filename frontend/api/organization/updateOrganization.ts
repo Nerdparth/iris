@@ -32,7 +32,11 @@ export default async function updateOrganization(
     }
   );
 
-  if (!response.ok) {
+  if (response.status === 302) {
+    throw new Error("User not admin");
+  }
+
+  if (!response.ok && response.status !== 302) {
     throw new Error(response.statusText);
   }
 }
