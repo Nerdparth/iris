@@ -5,10 +5,10 @@ import { createClient } from "@/utils/supabase/client";
 type SendMessageParams = {
   chatId: string;
   message: string;
-  sender?: string; // expected values like '"user"' or '"assistant"'
+  sender?: string; // expected values like 'user' or 'bot'
 };
 
-export async function sendMessage({ chatId, message, sender = '"user"' }: SendMessageParams) {
+export async function sendMessage({ chatId, message, sender = 'bot' }: SendMessageParams) {
   const supabase = createClient();
 
   const { data, error } = await supabase
