@@ -4,6 +4,7 @@ import { useChatSubscription } from "@/api/bot/getChats";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { sendMessage } from "@/api/bot/sendMessage";
+import { toggleIntervention } from "@/api/bot/toggleIntervein";
 
 export default function Messages({
   setChatsOpen,
@@ -13,6 +14,11 @@ export default function Messages({
   chatId: string;
 }) {
   const { chats, loading } = useChatSubscription(chatId);
+
+  useEffect(() => {
+    toggleIntervention(chatId, true);
+  }, []);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState("");
 
@@ -23,15 +29,15 @@ export default function Messages({
     }
   }, [loading, chats.length]);
 
-  useEffect(() => {
-    console.log("Chat messages:", chats);
-  }, [chats]);
   return (
     <div className="absolute top-0 left-0 h-full w-full z-10 bg-white/50 backdrop-blur-md flex items-center justify-center">
       <div ref={scrollRef} className="bg-white p-4 relative rounded-lg max-w-2xl w-full h-4/5 overflow-y-scroll m-8 border border-gray-200">
         <button
           className="fixed bg-white h-8 w-8 rounded-md border"
-          onClick={() => setChatsOpen(false)}
+          onClick={() => {
+            setChatsOpen(false)
+            toggleIntervention(chatId, false);
+          }}
         >
           ✕
         </button>
