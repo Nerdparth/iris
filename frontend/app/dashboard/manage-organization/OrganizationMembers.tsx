@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import getOrganizationMembers from "@/api/organization/getOrganizationMembers";
 
 type Member = {
-  id: number;
+  userId: string;
   email: string;
   is_admin: boolean;
 };
@@ -75,7 +75,7 @@ export default function OrganizationMembers({ orgUuid }: { orgUuid: string }) {
             ) : (
               members.map((member) => (
                 <tr
-                  key={member.id}
+                  key={member.userId}
                   className="hover:bg-gray-50/60 dark:hover:bg-gray-900/20 transition-colors"
                 >
                   <td className="p-3 border-b border-dashed border-gray-200 dark:border-gray-800">
