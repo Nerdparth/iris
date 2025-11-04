@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import getOrganizationMembers from "@/api/organization/getOrganizationMembers";
+import removeMember from "@/api/organization/removeMember";
 
 type Member = {
   userId: string;
@@ -13,6 +15,7 @@ export default function OrganizationMembers({ orgUuid }: { orgUuid: string }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchMembers() {
@@ -31,6 +34,22 @@ export default function OrganizationMembers({ orgUuid }: { orgUuid: string }) {
 
     fetchMembers();
   }, [orgUuid]);
+
+  async function handleRemove(userId: string) {
+    const target = members.find((m) => m.userId === userId);
+    if (!target) return;
+    
+    try {
+      setRemoving(userId);
+      await removeMember(userId);
+      setMembers((prev) => prev.filter((m) => m.userId !== userId));
+      toast.success("Removed", { description: `${target.email} removed from organization` });
+    } catch (err: any) {
+      toast.error("Failed to remove member", { description: err?.message || "Not implemented" });
+    } finally {
+      setRemoving(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -63,12 +82,15 @@ export default function OrganizationMembers({ orgUuid }: { orgUuid: string }) {
               <th className="p-3 border-b border-dashed border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 text-sm">
                 Role
               </th>
+              <th className="p-3 border-b border-dashed border-gray-200 dark:border-gray-800 w-48 text-gray-600 dark:text-gray-300 text-sm">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {members.length === 0 ? (
               <tr>
-                <td colSpan={2} className="p-6 text-center text-gray-500 text-sm">
+                <td colSpan={3} className="p-6 text-center text-gray-500 text-sm">
                   No members found
                 </td>
               </tr>
@@ -91,6 +113,17 @@ export default function OrganizationMembers({ orgUuid }: { orgUuid: string }) {
                     >
                       {member.is_admin ? "Admin" : "Member"}
                     </span>
+                  </td>
+                  <td className="p-3 border-b border-dashed border-gray-200 dark:border-gray-800">
+                    {!member.is_admin && (
+                      <button
+                        className="px-3 py-2 rounded-md border border-red-300/60 text-red-700 dark:text-red-400 bg-white dark:bg-transparent hover:bg-red-50/60 dark:hover:bg-red-900/10 disabled:opacity-50 text-sm"
+                        disabled={removing === member.userId}
+                        onClick={() => handleRemove(member.userId)}
+                      >
+                        {removing === member.userId ? "Removing…" : "Remove"}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
