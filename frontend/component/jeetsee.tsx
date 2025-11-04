@@ -62,7 +62,7 @@ export default function JitsiMeeting({ roomName, displayName }: JitsiMeetingProp
     setIsSending(true);
     try {
       for (const email of emailList) {
-        const url = new URL("http://127.0.0.1:8000/api/send-email");
+        const url = new URL("https://melodic-holies-jamey.ngrok-free.dev/api/send-email");
         url.searchParams.append("recipient_email", email);
         url.searchParams.append("user_name", displayName);
         url.searchParams.append(
