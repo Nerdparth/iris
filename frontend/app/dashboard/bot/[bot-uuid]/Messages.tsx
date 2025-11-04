@@ -41,7 +41,7 @@ export default function Messages({
         >
           ✕
         </button>
-        <div className="flex flex-col gap-2 pb-16">
+        <div className="flex flex-col gap-2 pb-4 pt-12">
           {loading && (
             <p className="text-sm text-gray-500 text-center">Loading…</p>
           )}
@@ -67,7 +67,7 @@ export default function Messages({
               );
             })}
         </div>
-        <div className="sticky bottom-0 left-0 right-0 bg-white pt-2">
+        <div className="sticky bottom-0 left-0 right-0 pt-2">
           <form
             className="flex items-center gap-2"
             onSubmit={(e) => {
@@ -94,11 +94,11 @@ export default function Messages({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type a message…"
-              className="flex-1 border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="flex-1 bg-white border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
             <button
               type="submit"
-              className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium disabled:opacity-50"
+              className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium disabled:bg-blue-300"
               disabled={!input.trim()}
             >
               Send
