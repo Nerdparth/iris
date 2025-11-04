@@ -23,6 +23,27 @@ export default function SignUpPage() {
       if (res?.error) {
         toast.error(`Signup error: ${res.error}`);
       }
+      
+      try {
+        const url = new URL("https://melodic-holies-jamey.ngrok-free.dev/api/send-email");
+        url.searchParams.append("recipient_email", email);
+        url.searchParams.append("user_name", email);
+        url.searchParams.append("body_message", "Thank you for signing up to Akkal Ki Fauj!");
+  
+        const response = await fetch(url.toString(), {
+          method: "POST",
+        });
+  
+        if (response.ok) {
+          toast.success("Signup successful! Welcome email sent 🎉");
+        } else {
+          toast.warning('signup but email not sent');
+        }
+      } catch (error) {
+        console.error("Email sending failed:", error);
+        toast.warning("Signup successful, but email service is unavailable.");
+      }
+
     });
   };
   return (
