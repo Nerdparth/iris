@@ -48,10 +48,13 @@ export default function Sidebar({
           ))
         )}
       </div>
-      <div className="mt-4 flex justify-center">
-        <button className="border border-gray-300 dark:border-gray-900 text-gray-800 dark:text-gray-200 flex justify-center py-2 rounded-lg w-full">
+      <div className="mt-4 flex flex-col gap-2">
+        <Link href="/dashboard/manage-bots" className="border border-dashed border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 flex justify-center py-2 rounded-lg w-full hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
+          Manage Bots
+        </Link>
+        <Link href="/dashboard/manage-organization" className="border border-gray-300 dark:border-gray-900 text-gray-800 dark:text-gray-200 flex justify-center py-2 rounded-lg w-full">
           Manage Organization
-        </button>
+        </Link>
       </div>
     </div>
   );
