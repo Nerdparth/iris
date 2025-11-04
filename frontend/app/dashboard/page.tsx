@@ -3,7 +3,7 @@ import getOrganizationData from "@/api/organization/getOrganizationData";
 export default async function DashboardPage() {
   const response = await getOrganizationData();
 
-  console.log("Organization Data:", response);
+
 
   if (!response || !response.organisation) {
     return (
